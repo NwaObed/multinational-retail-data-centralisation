@@ -30,17 +30,24 @@ class DataExtractor:
         """
         # DBS = DatabaseConnector()
         # table = DBS.list_db_tables()
-        engine = DBC.init_db_engine()
+        engine = DBC.init_db_engine('db_creds.yaml')
         # print(table)
         # legacy_users = pd.read_sql_table(table[1], engine)
 
         return pd.read_sql_table(table_name, engine)
 
+    def extract_user_data(self):
+        'Function to extract data from database table and return pandas DataFrame.'
+        DBC = DatabaseConnector()
+        user_table = DBC.list_db_tables()
+        return self.read_rds_table(DBC, user_table[1])
+
 
     def retrieve_pdf_data(self, link=pdf_link):
         'Extract data from pdf and return pandas Dataframe'
-
-        df = tabula.read_pdf(link, pages='all')
+        print('Extracting pdf data ...')
+        df = pd.DataFrame(tabula.read_pdf(link, pages='all')[0])
+        print('Data extracted successfully')
         return df
 
     def extract_from_s3(self, link=s3_link):
@@ -79,12 +86,20 @@ class DataExtractor:
         return response.json()['number_stores']
 
     def retrieve_stores_data(self, store_end_point):
+        """
+        This function extracts all the store data from the API
+        
+        Arg:
+        store_end_point (str) : A store endpoint to retrieve data from
+        
+        Return:
+        DataFrame of the retrieved data."""
         number_stores = self.list_number_of_stores(num_store_end_point, header) #get the number of stores
-        store_data = []
+        store_data = [] #list to store retrieved data  from each store
         #Iterate over the the store to retrieve data
         for store_number in range(number_stores):
             response = requests.get(store_end_point+str(store_number), headers=header)
-            store_data.append(response.json())
+            store_data.append(response.json()) #store response data
         df = pd.DataFrame(store_data)
         df.set_index('index', inplace=True)
         return df
@@ -117,6 +132,10 @@ if __name__ == '__main__':
     # number_stores = 4# self.list_number_of_stores(num_store_end_point, header)
     # store_end_point = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/'
     # df = DE.retrieve_stores_data(store_end_point)
-    s3_link = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
-    df = DE.extract_date_time_data(s3_link)
-    print(df)
+    # s3_link = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
+    # print('Extracting data...')
+    # df = DE.extract_date_time_data(s3_link)
+    df  = DE.retrieve_pdf_data('card_details.pdf')
+    print(type(df))
+    
+
