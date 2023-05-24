@@ -60,9 +60,9 @@ class DataExtractor:
 
         return df
 
-        self.read_rds_table()
-        print('===========================================')
-        print(f'List of tables : {self.read_rds_table().table}')
+        # self.read_rds_table()
+        # print('===========================================')
+        # print(f'List of tables : {self.read_rds_table().table}')
 
     def extract_orders_data(self):
         'Extract orders data to pandas DataFrame'

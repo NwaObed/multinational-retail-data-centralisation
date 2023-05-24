@@ -1,16 +1,22 @@
 import pandas as pd
+import numpy as np
+import warnings
 
 from quantiphy import Quantity
 
 from data_extraction import DataExtractor
 from database_utils import DatabaseConnector
 
+warnings.filterwarnings('ignore')
 DBC = DatabaseConnector()
 DE = DataExtractor()
 
 #API endpoints
 store_end_point = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/'
 
+#S3 links
+product_s3_link = 's3://data-handling-public/products.csv' #products link
+dt_s3_link = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
 
 class DataCleaning:
     'This class implements data cleaning of data from different data sources.'
@@ -22,17 +28,27 @@ class DataCleaning:
         df_user_data (str) : pandas DataFrame name
         """
         #checking for NULL values
-        print('============================================')
-        df_user_data.info() #amount of null in each column
-        print('============================================')
+        print('=================================General Info===============================')
+        print(df_user_data.info()) #amount of null in each column
+        print('=================================Total missing values===============================')
+        #check total missing values
+        print(df_user_data.isna().sum())
+        #investigate country_code
+        print('=================================Unique Country codes===============================')
+        print(df_user_data.country_code.unique().tolist())
+        df_user_data.country_code = df_user_data.country_code.replace(to_replace=['GGB'], value=['GB'])
+        invalid_users_data = df_user_data[~df_user_data.country_code.isin(['DE','GB','US'])]
+        print('============================== Invalid data =========================================')
+        print(invalid_users_data)
+        #Drop invalid data
+        df_user_data = df_user_data.drop(index=invalid_users_data.index)
         #convert datetime
         df_user_data[['join_date','date_of_birth']] = df_user_data[['date_of_birth', 'join_date']].apply(pd.to_datetime, errors='coerce')
-        
-
-        clean_df_user_data = df_user_data.head()
+        print('=================================General info after cleaning===============================')
+        print(df_user_data.info()) #amount of null in each column
         #upload clean data
         print('Uploading data ...')
-        DBC.upload_to_db(clean_df_user_data, 'dim_users')
+        DBC.upload_to_db(df_user_data, 'dim_users')
 
     def clean_card_data(self,df_card_data):
         """
@@ -93,24 +109,40 @@ class DataCleaning:
         """Function to clean the products data
         
         Arg:
-        products_df (str) : Name of the product DataFrame"""
+        products_df (str) : Name of the product DataFrame returned from convert_product_weights()"""
         #Remove special characters from the price column
         products_df['product_price'] = products_df['product_price'].str.strip('£')
+        invalid_price_data = products_df[products_df.product_price.isin([np.nan, 'XCD69KUI0K', 'N9D2BZQX63', 'ODPMASE7V7', ])] #get rows of invalid country codes
+        print('=====================Invalid rows=============================')
+        print(invalid_price_data)
+        print('==================================================================')
+        # Drop the invalid data rows
+        products_df = products_df.drop(index=invalid_price_data.index)
+        #convert to float
+        products_df.product_price = products_df.product_price.astype(float)
+        #Investigate weight
+        products_df.weight = products_df.weight.str.strip('oz')
+        products_df.weight = products_df.weight.astype(float)
+        # #Investigate date_added
+        products_df.date_added.unique().tolist()
+        products_df.date_added = pd.to_datetime(products_df.date_added, format='mixed')
+        products_df.head()
+        #Upload the data
+        DBC.upload_to_db(product_data, 'dim_products')
 
-    def clean_orders_data(self):
+
+    def clean_orders_data(self, orders_table):
         'Function to clean the orders data'
-        orders_table = DE.extract_orders_data()
+        orders_table = orders_table.set_index('index')#set index
         #Drop columns
-        orders_table = orders_table.drop(['first_name', 'last_name', '1'])
+        orders_table = orders_table.drop(['first_name', 'last_name', '1'],axis=1)
 
         #Upload the data
-        clean_orders_table = orders_table.head()
-        DBC.upload_to_db(clean_orders_table, 'orders_table')
+        DBC.upload_to_db(orders_table, 'orders_table')
 
-    def called_clean_store_data(self):
+    def called_clean_store_data(self,store_data):
         'Function to clean data from API and upload to database'
         
-        store_data = pd.read_csv('store_data.csv')#DE.retrieve_stores_data(store_end_point)
         store_data2 = store_data #make a copy
         # data cleaning
         print('========================Number of missing values ==============================')
@@ -144,30 +176,68 @@ class DataCleaning:
         #upload clean data to database
         DBC.upload_to_db(store_data2, 'dim_store_details')
 
-    def clean_date_times(self):
-        s3_link = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
-        dt_data = DE.extract_date_time_data(s3_link)
+    def clean_date_times(self, dt_df):
+        """
+        Function to clean date_time data and upload the DataFrame to database
+        
+        Arg:
+        dt_df (str) : Name of the date_time DataFrame"""
 
         #data cleaning
-
+        print('===============================Data Headers===============================')
+        print(dt_df.columns)
+        #missing values
+        print('===============================Total Missing Values===============================')
+        dt_df.isna().sum()
+        #Investigate category
+        print('===========================Category unique values===============================')
+        print(dt_df.category.unique())
+        invalid_date_time_data = dt_df[dt_df.category.isin([None, 'S1YB74MLMJ', 'C3NCA2CL35', 'WVPMHZP59U'])]
+        print('===============================Invalid rows===============================')
+        print(invalid_date_time_data)
+        dt_df = dt_df.drop(index=invalid_date_time_data.index)
+        #Investigate weight
+        dt_df = DC.convert_product_weights(dt_df)#convert weiht
+        #Investigate date_added
+        dt_df.date_added.unique().tolist()
+        dt_df.date_added = pd.to_datetime(dt_df.date_added, format='mixed')
         #data upload
-        clean_dt_data = dt_data.head()
-        DBC.upload_to_db(clean_dt_data, 'dim_date_times')
-
-
-
-            
-            
-                
-
-
-        
+        DBC.upload_to_db(dt_df, 'dim_date_times')
 
 if __name__ == '__main__':
     DC = DataCleaning()
-    df = DataExtractor().retrieve_pdf_data('card_details.pdf')
-    DC.clean_card_data(df)
+    DE = DataExtractor()
+    print('*******************************CLEANING USERS DATA*******************************')
+    users_data = DE.extract_user_data()
+    DC.clean_user_data(users_data)
+    print('*******************************CLEANING USERS DATA COMPLETE*******************************')
 
+
+    print('*******************************CLEANING CARD DATA*******************************')
+    card_data = DE.retrieve_pdf_data('card_details.pdf')
+    DC.clean_card_data(card_data)
+    print('*******************************CLEANING CARD DATA COMPLETE*******************************')
+    
+    print('*******************************CLEANING PRODUCTS DATA*******************************')
+    product_data = DE.extract_from_s3(product_s3_link)
+    product_data = DC.convert_product_weights(product_data) #weight conversion
+    DC.clean_products_data(product_data)
+    print('*******************************CLEANING PRODUCTS DATA COMPLETE*******************************')
+
+    print('*******************************CLEANING ORDERS DATA*******************************')
+    order_data = DE.extract_orders_data()
+    DC.clean_orders_data(order_data)
+    print('*******************************CLEANING ORDERS DATA COMPLETE*******************************')
+
+    print('*******************************CLEANING STORE DATA*******************************')
+    store_data = DE.retrieve_stores_data(store_end_point)
+    DC.called_clean_store_data(store_data)
+    print('*******************************CLEANING STORE DATA COMPLETE*******************************')
+
+    print('*******************************CLEANING DATE-TIME DATA*******************************')
+    dt_data = DE.extract_date_time_data(dt_s3_link)
+    DC.clean_date_times(dt_data)
+    print('*******************************CLEANING DATE-TIME DATA COMPLETE*******************************')
 
 
 
