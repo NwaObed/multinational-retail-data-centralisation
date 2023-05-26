@@ -121,14 +121,14 @@ class DataCleaning:
         #convert to float
         products_df.product_price = products_df.product_price.astype(float)
         #Investigate weight
-        products_df.weight = products_df.weight.str.strip('oz')
+        products_df.weight[products_df['weight'] == '16oz'] = '0.016'
         products_df.weight = products_df.weight.astype(float)
         # #Investigate date_added
         products_df.date_added.unique().tolist()
         products_df.date_added = pd.to_datetime(products_df.date_added, format='mixed')
-        products_df.head()
         #Upload the data
-        DBC.upload_to_db(product_data, 'dim_products')
+        DBC.upload_to_db(products_df, 'dim_products')
+        # return products_df
 
 
     def clean_orders_data(self, orders_table):
@@ -189,18 +189,14 @@ class DataCleaning:
         #missing values
         print('===============================Total Missing Values===============================')
         dt_df.isna().sum()
-        #Investigate category
-        print('===========================Category unique values===============================')
-        print(dt_df.category.unique())
-        invalid_date_time_data = dt_df[dt_df.category.isin([None, 'S1YB74MLMJ', 'C3NCA2CL35', 'WVPMHZP59U'])]
-        print('===============================Invalid rows===============================')
-        print(invalid_date_time_data)
-        dt_df = dt_df.drop(index=invalid_date_time_data.index)
-        #Investigate weight
-        dt_df = DC.convert_product_weights(dt_df)#convert weiht
-        #Investigate date_added
-        dt_df.date_added.unique().tolist()
-        dt_df.date_added = pd.to_datetime(dt_df.date_added, format='mixed')
+        #Investigate month column
+        print('===============================Month Unique values===============================')
+        print(dt_df.month.unique())
+        invalid_dt_df = dt_df[~dt_df.month.isin(['1','2','3','4','5','6','7','8','9','10','11','12'])]
+        print('===============================Messy rows===============================')
+        print(invalid_dt_df)
+        #Drop the invalid data
+        dt_df = dt_df.drop(index=invalid_dt_df.index)
         #data upload
         DBC.upload_to_db(dt_df, 'dim_date_times')
 

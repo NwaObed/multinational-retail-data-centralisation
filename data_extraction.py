@@ -54,9 +54,19 @@ class DataExtractor:
         'Extract data from s3 bucket and return pandas DataFrame'
         
         s3 = boto3.client('s3')
-        cred = s3_link.split('/')
+        cred = link.split('/')
         obj = s3.get_object(Bucket=cred[2].split('.')[0], Key=cred[-1])
         df = pd.read_csv(obj.get('Body'))
+
+        return df
+
+    def extract_json_from_s3(self, link=s3_link):
+        'Extract json data from s3 bucket and return pandas DataFrame'
+        
+        s3 = boto3.client('s3')
+        cred = link.split('/')
+        obj = s3.get_object(Bucket=cred[2].split('.')[0], Key=cred[-1])
+        df = pd.read_json(obj.get('Body'))
 
         return df
 
@@ -109,7 +119,7 @@ class DataExtractor:
         
         Args:
         s3_date_link (str) : s3 link to the data"""
-        return self.extract_from_s3(s3_date_link)
+        return self.extract_json_from_s3(s3_date_link)
 
 
 
