@@ -1,4 +1,4 @@
--- Task 3
+-- Task 3 : Get the months with the average highest cost of sales
 SELECT ROUND(CAST(SUM(product_price * product_quantity) AS numeric), 2) total_sales,
 		month
 FROM

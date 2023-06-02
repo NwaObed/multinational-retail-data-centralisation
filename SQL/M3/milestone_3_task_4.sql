@@ -10,7 +10,7 @@ UPDATE dim_products
                                 WHEN weight BETWEEN '40' AND '139.999' THEN 'Heavy'
                                 WHEN weight >= '140' THEN 'Truck_Required'
                             END),
-            still_available = (CASE
-                                    WHEN still_available = 'Still_available' THEN 'TRUE'
-                                    WHEN still_available = 'Removed' THEN 'FALSE'
+            removed = (CASE
+                                    WHEN removed = 'Still_available' THEN 'TRUE'
+                                    WHEN removed = 'Removed' THEN 'FALSE'
                                 END);

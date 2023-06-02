@@ -1,4 +1,4 @@
--- Task 6
+-- Task 6 : Get the months of the year with the highest cost of sales
 SELECT
 	ROUND(CAST(SUM(product_price * product_quantity) AS numeric), 2) total_sales,
 	year,

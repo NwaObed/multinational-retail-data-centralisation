@@ -2,12 +2,11 @@ import pandas as pd
 import numpy as np
 import warnings
 
-from quantiphy import Quantity
-
 from data_extraction import DataExtractor
 from database_utils import DatabaseConnector
 
 warnings.filterwarnings('ignore')
+
 DBC = DatabaseConnector()
 DE = DataExtractor()
 
@@ -19,10 +18,10 @@ product_s3_link = 's3://data-handling-public/products.csv' #products link
 dt_s3_link = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
 
 class DataCleaning:
-    'This class implements data cleaning of data from different data sources.'
+    'This class implements implements methods for cleaning data from different data sources.'
     def clean_user_data(self, df_user_data):
         """
-        Function to clean users DataFrame and upload to the database
+        Function to clean users data and upload to the database
         
         Args:
         df_user_data (str) : pandas DataFrame name
@@ -55,7 +54,7 @@ class DataCleaning:
         Function to clean card details.
         
         Arg:
-        df_card_data (str) : Name of the card DataFrame data"""
+        df_card_data (str) : Name of the card DataFrame"""
         print('================Check for null values=====================')
         print(df_card_data.info())
         #Investigate individual columns for data consistency
@@ -132,7 +131,11 @@ class DataCleaning:
 
 
     def clean_orders_data(self, orders_table):
-        'Function to clean the orders data'
+        """
+        Function to clean the orders data
+        
+        Args:
+        orders_table (str) : Name of the orders DataFrame"""
         orders_table = orders_table.set_index('index')#set index
         #Drop columns
         orders_table = orders_table.drop(['first_name', 'last_name', '1'],axis=1)
@@ -141,7 +144,11 @@ class DataCleaning:
         DBC.upload_to_db(orders_table, 'orders_table')
 
     def called_clean_store_data(self,store_data):
-        'Function to clean data from API and upload to database'
+        """
+        Function to clean the store data
+        
+        Args:
+        store_data (str) : Name of the store DataFrame"""
         
         store_data2 = store_data #make a copy
         # data cleaning
@@ -203,14 +210,19 @@ class DataCleaning:
 if __name__ == '__main__':
     DC = DataCleaning()
     DE = DataExtractor()
+
+    print('*******************************CLEANING ORDERS DATA*******************************')
+    order_data = DE.extract_orders_data()
+    DC.clean_orders_data(order_data)
+    print('*******************************CLEANING ORDERS DATA COMPLETE*******************************')
+
     print('*******************************CLEANING USERS DATA*******************************')
     users_data = DE.extract_user_data()
     DC.clean_user_data(users_data)
     print('*******************************CLEANING USERS DATA COMPLETE*******************************')
 
-
     print('*******************************CLEANING CARD DATA*******************************')
-    card_data = DE.retrieve_pdf_data('card_details.pdf')
+    card_data = DE.retrieve_pdf_data('./PDF/card_details.pdf')
     DC.clean_card_data(card_data)
     print('*******************************CLEANING CARD DATA COMPLETE*******************************')
     
@@ -219,11 +231,6 @@ if __name__ == '__main__':
     product_data = DC.convert_product_weights(product_data) #weight conversion
     DC.clean_products_data(product_data)
     print('*******************************CLEANING PRODUCTS DATA COMPLETE*******************************')
-
-    print('*******************************CLEANING ORDERS DATA*******************************')
-    order_data = DE.extract_orders_data()
-    DC.clean_orders_data(order_data)
-    print('*******************************CLEANING ORDERS DATA COMPLETE*******************************')
 
     print('*******************************CLEANING STORE DATA*******************************')
     store_data = DE.retrieve_stores_data(store_end_point)
@@ -234,15 +241,3 @@ if __name__ == '__main__':
     dt_data = DE.extract_date_time_data(dt_s3_link)
     DC.clean_date_times(dt_data)
     print('*******************************CLEANING DATE-TIME DATA COMPLETE*******************************')
-
-
-
-# .dtypes -- returns the datatypes of the dataframe columns
-# .info() -- returns the amount of null info in each column
-# remove special characters using .str.strip() method
-# .describe() -- gives the statistical info of a column
-# .duplicated() -- checks if there are duplicates. with .sum() we can get the total
-#   number of duplicated values
-# .duplicated() takes on two arguments 
-#       -- subset : list of columns to check for dup
-#       -- keep : first, last, False

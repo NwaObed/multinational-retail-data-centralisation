@@ -1,4 +1,5 @@
 -- Casting the orders table -- Task 1
+--  Changing the data types for the orders_table
 ALTER TABLE orders_table
     ALTER COLUMN date_uuid TYPE uuid USING date_uuid::uuid,
     ALTER COLUMN user_uuid TYPE uuid USING user_uuid::uuid,

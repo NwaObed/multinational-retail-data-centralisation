@@ -1,4 +1,4 @@
--- Task 2
+-- Task 2 : Get the top 7 locations that have the most stores
 SELECT locality,
 		COUNT(locality) AS total_no_stores
 FROM 

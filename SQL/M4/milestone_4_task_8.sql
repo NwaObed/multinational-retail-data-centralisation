@@ -1,11 +1,12 @@
--- Task 8
+-- Task 8 : Get the top selling German store types
 SELECT
+	-- Select the relevant columns
 	ROUND(CAST(SUM(product_price * product_quantity) AS numeric), 2) total_sales,
 	store_type,
 	country_code
--- 	(total_sales / SUM(total_sales))*100
 FROM 
 	dim_store_details
+-- Join the tables together
 JOIN
 	orders_table
 ON

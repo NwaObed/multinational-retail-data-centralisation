@@ -1,5 +1,6 @@
--- -- Task 5
+-- -- Task 5 : Get the percentage of sales from each store
 WITH total_table AS (
+	-- Using cte to 
 	SELECT
 		store_type,
 		ROUND(CAST(SUM(product_price * product_quantity) AS numeric), 2) total_sales

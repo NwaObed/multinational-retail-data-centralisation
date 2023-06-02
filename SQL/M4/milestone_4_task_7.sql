@@ -1,4 +1,4 @@
--- Task 7
+-- Task 7 : Get the staff headcount
 SELECT SUM(staff_numbers) AS total_staff_numbers,
 			country_code
 FROM dim_store_details
