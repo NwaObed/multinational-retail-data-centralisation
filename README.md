@@ -1,6 +1,6 @@
 # Multinational Retail Data Centralisation
 
-In this project, I extracted data from multiple sources and formats (`.pdf`, `.csv`, `.json`), built a centralised database with star-based schema to store the data, cleaned the data and uploaded the data to the database. The project is implemented in the `retail_project.py` file.
+In this project, I extracted data from multiple sources and formats (`.pdf`, `.csv`, `.json`), built a centralised database with star-based schema to store the data, cleaned the cleaned data and uploaded it to the database. The project is implemented in the `retail_project.py` file.
 
 In the `Multinational_Retail` folder, the `data_extraction.py` module implements the `DataExtractor` class that extracts the data from multiple data sources. After extraction, the `data_cleaning.py` module cleans the data by checking for `NULL` values, data consistency, and data conversion. Finally, the `database_utils.py` module implements the `DatabaseConnector` class that connects and uploads the clean data to the centralised database.
 
