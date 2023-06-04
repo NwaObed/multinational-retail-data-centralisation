@@ -70,11 +70,11 @@ GROUP BY
 ```
 
 # Packages
+- [Boto3 1.26.130](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)
 - [Numpy 1.23.5](https://numpy.org/) 
 - [Pandas 2.0.1](https://pandas.pydata.org/)
-- [Tabula 2.7.0](https://tabula.technology/)
-- [boto3 1.26.130](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)
 - [SQLAlchemy 2.0.12](https://www.sqlalchemy.org/)
+- [Tabula 2.7.0](https://tabula.technology/)
 
 # Languages
 - Python
