@@ -70,9 +70,9 @@ GROUP BY
 ```
 
 # Packages
-`[Numpy](https://numpy.org/)` 
-`Pandas`
-`Tabula`
-`boto3`
-`sqlalchemy`
+- [Numpy](https://numpy.org/) 
+- [Pandas]
+- [Tabula]
+- [boto3]
+- [sqlalchemy]
 
