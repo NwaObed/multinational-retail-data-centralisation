@@ -70,7 +70,7 @@ GROUP BY
 ```
 
 # Packages
-`"[Numpy]" "(https://numpy.org/)"` 
+`[Numpy](https://numpy.org/)` 
 `Pandas`
 `Tabula`
 `boto3`
