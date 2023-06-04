@@ -68,3 +68,11 @@ FROM
 GROUP BY
 	year
 ```
+
+# Packages
+`"[Numpy]" "(https://numpy.org/)"` 
+`Pandas`
+`Tabula`
+`boto3`
+`sqlalchemy`
+
