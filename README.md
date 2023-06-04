@@ -76,3 +76,6 @@ GROUP BY
 - [boto3 1.26.130](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)
 - [SQLAlchemy 2.0.12](https://www.sqlalchemy.org/)
 
+# Languages
+- Python
+- SQL
