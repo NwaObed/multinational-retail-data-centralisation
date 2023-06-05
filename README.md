@@ -4,7 +4,7 @@ In this project, I extracted data from multiple sources and formats (`.pdf`, `.c
 
 In the `Multinational_Retail` folder, the `data_extraction.py` module implements the `DataExtractor` class that extracts the data from multiple data sources. After extraction, the `data_cleaning.py` module cleans the data by checking for `NULL` values, data consistency, and data conversion. Finally, the `database_utils.py` module implements the `DatabaseConnector` class that connects and uploads the clean data to the centralised database.
 
-Using the clean data uploaded to the database, I queried the database using `SQL` and answered some important questions. For example, using the following code snippets, I calculated the total number number of sales and product quantity count coming from online `vs` offline.
+Using the clean data uploaded to the database, I queried the database using `SQL` and answered some important questions. For example, using the following code snippets, I calculated the total number of sales and product quantity count coming from online `vs` offline.
 
 ```SQL
 -- TAsk 4 : : Get the total sales online vs offline
